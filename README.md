@@ -2,7 +2,7 @@
 
 **A knowledge-augmented dataset of high-risk driving scenarios with LLM annotations for autonomous driving**
 
-[![Paper](https://img.shields.io/badge/Paper-Scientific%20Data-b31b1b?style=for-the-badge)](#)
+[![Paper](https://img.shields.io/badge/Paper-arxiv-b31b1b?style=for-the-badge)](#)
 [![Data](https://img.shields.io/badge/Data-Figshare-1f9d55?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/License-Research%20use-blue?style=for-the-badge)](#license)
 
@@ -37,7 +37,7 @@ This repository hosts the **data-processing pipeline** (event extraction, scenar
 ## News
 
 - 🔥 **[2026/06]** Initial release of the **K-Risk data-processing pipeline** (event extraction, scenario-description generators, the closed-loop LLM annotation driver, and the statistics/figure scripts).
-- 🗓️ **Coming soon** — the full **K-Risk dataset** (event-level trajectories, annotations and LLM responses) will be released on **Figshare**, together with benchmark splits and an accompanying *Scientific Data* paper.
+- 🗓️ **Coming soon** — the full **K-Risk dataset** (event-level trajectories, annotations and LLM responses) will be released on **Figshare**.
 
 ---
 
@@ -280,12 +280,6 @@ Please also cite the original source datasets you use (see [Source datasets](#so
 ## License
 
 The pipeline code and the processed K-Risk records are released **for research use**. The original source recordings remain under the licenses and terms of their respective providers; obtain and use them accordingly.
-
----
-
-## Acknowledgements
-
-This research was conducted by KAIST as part of a joint research project under the Korea Institute of Science and Technology Information (KISTI) R&D program, *"Development of the Next-Generation Integrated Wired/Wireless Communication Gateway (X-Gateway)."* We thank the providers of all 20 source datasets for making their recordings publicly available.
 
 <!-- ---
 
