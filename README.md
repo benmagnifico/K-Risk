@@ -3,16 +3,18 @@
 **A knowledge-augmented dataset of high-risk driving scenarios with LLM annotations for autonomous driving**
 
 [![Paper](https://img.shields.io/badge/Paper-arxiv-b31b1b?style=for-the-badge)](#)
-[![Data](https://img.shields.io/badge/Data-Figshare-1f9d55?style=for-the-badge)](#)
-[![License](https://img.shields.io/badge/License-Research%20use-blue?style=for-the-badge)](#license)
+[![Data](https://img.shields.io/badge/Data-Figshare-1f9d55?style=for-the-badge)](https://doi.org/10.6084/m9.figshare.32896772)
+[![DOI](https://img.shields.io/badge/DOI-10.6084%2Fm9.figshare.32896772-1f9d55?style=for-the-badge)](https://doi.org/10.6084/m9.figshare.32896772)
+[![License](https://img.shields.io/badge/License-CC%20BY%204.0-blue?style=for-the-badge)](https://creativecommons.org/licenses/by/4.0/)
 
 K-Risk pairs **structured vehicle trajectories** with **LLM-generated natural-language annotations** for safety-critical driving. It aggregates **20 naturalistic (HV) and automated-vehicle (AV) trajectory sources** across Europe, China and the United States — covering highways, urban freeways, intersections and roundabouts — and curates **31,398 high-risk events**, including a **1,036-event extreme near-collision subset**.
 
 This repository hosts the **data-processing pipeline** (event extraction, scenario-description generation, the closed-loop LLM annotation driver, and the statistics/figure scripts). The **processed dataset itself is distributed separately on Figshare** (see [Data availability](#data-availability)) and is *not* tracked in this repository.
 
 <p align="center">
-  <img src="docs/fig_framework.png" alt="Overview of the K-Risk dataset and the LLM annotation framework" width="80%">
+  <img src="docs/fig_framework.png" alt="Overview of the K-Risk dataset and the LLM annotation framework" width="100%">
 </p>
+
 
 ---
 
@@ -36,8 +38,8 @@ This repository hosts the **data-processing pipeline** (event extraction, scenar
 
 ## News
 
-- 🔥 **[2026/06]** Initial release of the **K-Risk data-processing pipeline** (event extraction, scenario-description generators, the closed-loop LLM annotation driver, and the statistics/figure scripts).
-- 🗓️ **Coming soon** — the full **K-Risk dataset** (event-level trajectories, annotations and LLM responses) will be released on **Figshare**.
+- 🔥 **[2026/07]** The full **K-Risk dataset** (event-level trajectories, annotations and LLM responses) is now available on **Figshare**: [10.6084/m9.figshare.32896772](https://doi.org/10.6084/m9.figshare.32896772).
+- 🗓️ **[2026/06]** Initial release of the **K-Risk data-processing pipeline** (event extraction, scenario-description generators, the closed-loop LLM annotation driver, and the statistics/figure scripts).
 
 ---
 
@@ -45,7 +47,7 @@ This repository hosts the **data-processing pipeline** (event extraction, scenar
 
 - 🌍 **Multi-region, multi-environment** — 20 HV + AV trajectory sources from Europe, China and the United States, spanning highways, urban freeways, intersections and roundabouts.
 - ⚠️ **Multi-dimensional risk definition** — events are screened by a *driver risk field (DRF)* filter, *calibrated hard-maneuver thresholds* (hard acceleration / braking, lane change), and a *two-second trajectory-conflict predictor*, then graded **moderate / high / extreme**.
-- 🧩 **Synchronized triple per event** — every event is stored as a **CSV** (trajectories), a **JSON** (symbolic metadata), and a **TXT** (natural-language annotation) that share one event identifier.
+- 🧩 **Synchronized records per event** — every event is stored as a **JSON** (per-frame trajectory + symbolic metadata) paired, for the LLM-annotated subset, with a **TXT** (natural-language annotation) that shares one event identifier.
 - 🤖 **Closed-loop LLM annotation** — a representative subset receives an LLM causal-risk analysis and a discrete action recommendation from a **five-action schema**, validated against a collision-free simulator with iterative reflection.
 - 🔁 **Reusable across post-training stages** — the release supports CPT, SFT, RLHF (preference pairs) and RLVR (verifiable simulator reward) for driving agents.
 
@@ -63,12 +65,13 @@ This repository hosts the **data-processing pipeline** (event extraction, scenar
 | Risk levels (HV) | Moderate 76.8% · High 19.7% · Extreme 3.5% |
 | Unique agents | 53,295 (18.5% non-car: VRUs + heavy/special vehicles) |
 | LLM-annotated subset | 372 events (responses from GPT-4o and GPT-4.1) |
-| Per-event representation | CSV + JSON + TXT (synchronized triple) |
+| Per-event representation | trajectory + metadata (JSON), plus natural-language description/response (TXT) for the annotated subset |
 | Action schema | IDLE · Turn Left · Turn Right · Acceleration · Deceleration |
 
 <p align="center">
-  <img src="docs/fig_statistic.png" alt="Composition and safety-critical properties of K-Risk" width="75%">
+  <img src="docs/fig_statistic.png" alt="Composition and safety-critical properties of K-Risk" width="80%">
 </p>
+
 
 ---
 
@@ -89,7 +92,7 @@ K-Risk is a **secondary dataset**: it releases only the **event-level segments**
 
 ### Automated vehicles (AV)
 
-The 14 AV sources follow the unified longitudinal trajectory collection of **Ultra-AV** [[1]](#references); the CATS, Central Ohio and Vanderbilt recordings are obtained through Ultra-AV, which documents their original providers and access points.
+The 14 AV sources follow the unified longitudinal trajectory collection of **Ultra-AV**; the CATS, Central Ohio and Vanderbilt recordings are obtained through Ultra-AV, which documents their original providers and access points.
 
 | Source | Provider | Region | Link |
 |---|---|---|---|
@@ -112,7 +115,7 @@ The 14 AV sources follow the unified longitudinal trajectory collection of **Ult
 
 ## Repository structure
 
-This repository contains the pipeline code only. Scripts read from a local copy of the dataset (downloaded from Figshare) and write the per-event records, statistics and figures.
+This repository contains the pipeline code only. Scripts read from a local copy of the dataset (downloaded from Figshare) and produce the natural-language scenario descriptions, LLM responses, statistics and figures.
 
 ```
 K-Risk/
@@ -135,13 +138,10 @@ Each `generate_<source>.py` exports `generate_<source>(json_path, frame_step=...
 
 ## Data layout (Figshare release)
 
-The dataset is organized into three top-level directories. Within `trajectory_data/` and `event_annotations/`, events are split into human-driven (`HV/`) and automated-driving (`AV/`) groups, then one folder per source. Each per-event triple shares the event identifier encoded in its file name, so the CSV, JSON and TXT records of one event can be matched across directories.
+The dataset is organized into two top-level directories. Within `event_annotations/`, events are split into human-driven (`HV/`) and automated-driving (`AV/`) groups, then one folder per source. Each event shares the event identifier encoded in its file name, so the JSON and TXT records of one event can be matched across directories.
 
 ```
 K-Risk_data/
-├── trajectory_data/                 # Per-event trajectory segments underlying each event
-│   ├── HV/<source>/...
-│   └── AV/<source>/...
 ├── event_annotations/               # Extracted per-event records (JSON)
 │   ├── HV/
 │   │   ├── highd/  {highd_high_risk/, highd_normal_risk/, info.txt}
@@ -164,7 +164,7 @@ K-Risk_data/
 
 ## Event schema
 
-Each event is a synchronized **CSV + JSON + TXT** triple. Because every event keeps the **native column names of its source**, per-frame fields are described by role; a field absent in a source is simply not present in its files.
+Each event is stored as a per-event **JSON** (per-frame trajectory records + symbolic metadata); the LLM-annotated subset additionally has synchronized **TXT** files (scenario description + LLM responses) sharing the same event identifier. Because every event keeps the **native column names of its source**, per-frame fields are described by role; a field absent in a source is simply not present in its files.
 
 **Event-level descriptors** (from the file name / folder): `event_id`, `source_dataset`, `ego_id`, `risk_level` (normal/high/extreme), `frame_start`, `frame_end`, and for highD additionally `relation` (preceding / following / left-right-preceding / following / alongside) and `behavior` (`acc_high`, `brake_high`, `yaw_left`, `yaw_right`).
 
@@ -252,26 +252,41 @@ python compute_statistics.py    # writes K-Risk_statistics.md + distribution CSV
 python plot_overview.py         # writes the combined overview figure (PNG + PDF)
 ```
 
-Both scripts resolve paths relative to their own location and expect `event_annotations/` and `trajectory_data/` alongside them (or adjust the `HERE`/path constants at the top).
+Both scripts resolve paths relative to their own location and expect `event_annotations/` alongside them (or adjust the `HERE`/path constants at the top).
+
+> **Note.** `compute_statistics.py` also references a `trajectory_data/` folder (raw per-source trajectory tables) for its "K-Risk vs. original" comparison. Those raw tables are **not part of the Figshare release** (they belong to the original providers and are not redistributed — see [Source datasets](#source-datasets)). The dataset-only statistics run from `event_annotations/` alone; to reproduce the comparison tables, reconstruct `trajectory_data/` from the original recordings under their own licenses.
 
 ---
 
 ## Data availability
 
-The K-Risk dataset is archived on **Figshare** (DOI to be assigned on acceptance) and is **not** stored in this Git repository:
+The K-Risk dataset is archived on **Figshare** under a persistent DOI and is **not** stored in this Git repository:
 
-- **Code & pipeline:** `https://github.com/benmagnifico/K-Risk`
-- **Dataset (archived):** `Coming Soon.`
+- **Code & pipeline:** https://github.com/benmagnifico/K-Risk
+- **Dataset (archived):** https://doi.org/10.6084/m9.figshare.32896772 (CC BY 4.0)
 
-The release contains the event-level trajectory segments, the risk annotations and metadata, and the natural-language descriptions and LLM responses, organized into `trajectory_data/`, `event_annotations/` and `llm_analysis/`. The original recordings are available from the providers listed in [Source datasets](#source-datasets).
+The release (`K-Risk_data.zip`) contains the event-level trajectory segments (as per-event JSON records), the risk annotations and metadata, and the natural-language descriptions and LLM responses, organized into `event_annotations/` and `llm_analysis/`. The raw per-source trajectory tables are **not** redistributed; the original recordings are available from the providers listed in [Source datasets](#source-datasets), each under its own license and terms of use.
 
 ---
 
 ## Citation
 
+If you use K-Risk, please cite the Figshare dataset:
+
 ```bibtex
-Coming Soon.
+@dataset{huang2026krisk,
+  author    = {Huang, Heye and Li, Jingguang and Zhou, Zhiyuan and Liang, Paul and
+               Wu, Mingyu and Jang, Kitae and Wang, Jianqiang},
+  title     = {{K-Risk}: A knowledge-augmented dataset of high-risk driving
+               scenarios with {LLM} annotations for autonomous driving},
+  year      = {2026},
+  publisher = {figshare},
+  doi       = {10.6084/m9.figshare.32896772},
+  url       = {https://doi.org/10.6084/m9.figshare.32896772}
+}
 ```
+
+> Huang, Heye; Li, Jingguang; Zhou, Zhiyuan; Liang, Paul; Wu, Mingyu; Jang, Kitae; Wang, Jianqiang (2026). *K-Risk: A knowledge-augmented dataset of high-risk driving scenarios with LLM annotations for autonomous driving*. figshare. Dataset. https://doi.org/10.6084/m9.figshare.32896772
 
 Please also cite the original source datasets you use (see [Source datasets](#source-datasets)), in particular Ultra-AV for the AV component.
 
@@ -279,10 +294,7 @@ Please also cite the original source datasets you use (see [Source datasets](#so
 
 ## License
 
-The pipeline code and the processed K-Risk records are released **for research use**. The original source recordings remain under the licenses and terms of their respective providers; obtain and use them accordingly.
+- **Pipeline code** (this repository): released under the [MIT License](LICENSE).
+- **Processed K-Risk dataset** (Figshare release): distributed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to share and adapt with attribution.
 
-<!-- ---
-
-## References
-
-[1] Z. Zhou et al., "A unified longitudinal trajectory dataset for automated vehicle," *Scientific Data*, 2024. Ultra-AV: https://github.com/CATS-Lab/Filed-Experiment-Data-ULTra-AV -->
+The original source recordings remain under the licenses and terms of their respective providers; obtain and use them accordingly.
